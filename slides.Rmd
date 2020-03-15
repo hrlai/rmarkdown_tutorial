@@ -27,7 +27,7 @@ Combining scientific analyses and writing in one programme.
 ```{r}
 grViz("digraph flowchart {
       # node definitions with substituted label text
-      node [fontname = Helvetica, shape = rectangle]        
+      node [fontname = Helvetica, shape = none]        
       tab1 [label = '@@1']
       tab2 [label = '@@2']
       tab3 [label = '@@3']
@@ -47,8 +47,7 @@ grViz("digraph flowchart {
       [4]: 'Knit via knitr'
       [5]: 'Document conversion via pander'
       [6]: 'Final form in PDF, HTML, Word...'
-      ",
-      engine = "circo") %>%
+      ") %>%
     export_svg %>% charToRaw %>% rsvg_pdf("workflow.pdf")
 ```
 

@@ -1,0 +1,123 @@
+---
+title: "RMarkdown Tutorial"
+author: "Hao Ran Lai"
+date: "16 March 2020"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(DiagrammeR)
+library(DiagrammeRsvg)
+library(magrittr)
+library(rsvg)
+```
+
+```{r echo=FALSE}
+knitr::knit_hooks$set(mysize = function(before, options, envir) {
+  if (before) 
+    return(options$size)
+})
+```
+
+## R Markdown
+
+Combining scientific analyses and writing in one programme.
+
+```{r}
+grViz("digraph flowchart {
+      # node definitions with substituted label text
+      node [fontname = Helvetica, shape = rectangle]        
+      tab1 [label = '@@1']
+      tab2 [label = '@@2']
+      tab3 [label = '@@3']
+      tab4 [label = '@@4']
+      tab5 [label = '@@5']
+      tab6 [label = '@@6']
+
+      # edge definitions with the node IDs
+      tab1 -> tab3;
+      tab2 -> tab3;
+      tab3 -> tab4 -> tab5 -> tab6
+      }
+
+      [1]: 'Analyses in R'
+      [2]: 'Writing in Markdown'
+      [3]: 'Report / assignment in RMarkdown'
+      [4]: 'Knit via knitr'
+      [5]: 'Document conversion via pander'
+      [6]: 'Final form in PDF, HTML, Word...'
+      ",
+      engine = "circo") %>%
+    export_svg %>% charToRaw %>% rsvg_pdf("workflow.pdf")
+```
+
+```{r out.height="3in", fig.align='center'}
+knitr::include_graphics("workflow.pdf")
+```
+
+## Installation
+
+```
+install.packages("rmarkdown")
+```
+
+- Or just install RStudio, which comes with RMarkdown thesedays.
+- To compile PDFs, you may need to manually:
+
+```
+install.packages(“tinytex”)
+tinytex::install_tinytex()
+```
+
+## How to learn RMarkdown
+
+- Come to this session (peer support)
+- RMarkdown cheatsheets: [link](https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf)
+- RStudio > Help > Markdown Quick Reference
+- Google
+
+Some examples: [link](https://rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf)
+
+## Why all the fuss?
+
+- Reproducibility
+
+```{r fig.height=4, fig.width=5, fig.align='center', out.width = '70%'}
+x <- seq(0, 1, length.out = 100)
+y1 <- exp(-10 * x - 6 * x^2)
+y2 <- exp(-4 * x + 4* x^2 - 1.3* x^3)
+par(mar = c(5,4,1,1))
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xaxt = "n", yaxt = "n", bty = "l",
+     xlab = "Frequency of boss/collaborator asking to make changes",
+     ylab = "Efficiency / Reproducibility")
+axis(1, c(0.1, 0.9), c("Just doesn't care", "Like your mom"), tick = FALSE)
+lines(x, y1, col = "red", lwd = 2)
+lines(x, y2, col = "blue", lwd = 2)
+legend(0.5, 1, lty=c(1,1), col=c("blue","red"), legend=c("RMarkdown","R + MS Word"), lwd=c(2,2))
+```
+
+- More of a "one-stop-shop" than \LaTeX
+
+## Reproducible plot
+
+```{r echo=TRUE, fig.height=3.5, fig.width=4}
+x <- seq(0, 1, length.out = 100)
+y <- x + rnorm(length(x), 0, 0.1)
+plot(x, y)
+```
+
+## Reproducible analyses
+
+```{r echo=TRUE, mysize=TRUE, size = '\\footnotesize'}
+mod <- lm(y ~ x)
+summary(mod)
+```
+
+## Reproducible analyses
+
+```{r echo=TRUE, fig.height=3.5, fig.width=4}
+plot(x, y)
+abline(mod, col = "red", lwd = 2)
+```
+

@@ -1,0 +1,116 @@
+---
+title: "Diamond sizes"
+date: 2016-08-25
+output: html_document
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+
+knitr::knit_hooks$set(inline = function(x) {
+  prettyNum(x, big.mark=",")
+})
+```
+
+
+```{r setup, message = FALSE, warning = FALSE}
+library(ggplot2)
+library(dplyr)
+smaller <- diamonds %>% 
+  filter(carat <= 2.5)
+```
+
+We have data about `r nrow(diamonds)` diamonds. Only `r nrow(diamonds) - nrow(smaller)` (`r round(nrow(smaller)/nrow(diamonds), 3)`%) are larger than 2.5 carats. The distribution of the remainder is shown below:
+
+```{r}
+smaller %>% 
+  ggplot(aes(carat)) + 
+  geom_vline(xintercept = seq(0, 2.5, 0.1), colour = "lightgrey") +
+  geom_freqpoly(binwidth = 0.01) +
+  theme_classic()
+```
+
+Most carat ratings cluster around multiplications of 0.1 (grey vertical lines).
+
+# How does carat vary with cut, colour, and clarity?
+
+```{r}
+ggplot(diamonds) +
+  geom_boxplot(aes(cut, carat)) +
+  scale_y_log10()
+```
+
+```{r}
+ggplot(diamonds) +
+  geom_boxplot(aes(color, carat)) +
+  scale_y_log10()
+```
+
+```{r}
+ggplot(diamonds) +
+  geom_boxplot(aes(clarity, carat)) +
+  scale_y_log10()
+```
+
+# The largest 20 diamonds
+
+```{r}
+largest <- 
+  diamonds %>% 
+  top_n(20, carat)
+```
+
+The largest 20 diamonds tend to have superior clarity, but are very variable in other characteristics.
+
+```{r}
+largest_tab <- 
+  largest %>% 
+  count(clarity, .drop = FALSE)
+kableExtra::kable(largest_tab, format = "markdown")
+```
+
+# Dependent chunks and caching
+
+[Yihui Xie](https://yihui.org/knitr/demo/cache/) explains stuff much better than R4DS, which can be sloppy at times...
+
+## Without caching
+```{r include=FALSE}
+start_time <- Sys.time()
+```
+
+```{r no caching, cache=FALSE}
+dat = matrix(runif(100000), ncol=5)
+dat[, 3] = -.2 * dat[, 1] + .8 * dat[, 2] # to make the plot less boring
+```
+
+```{r}
+pairs(dat)
+```
+
+```{r include=FALSE}
+end_time <- Sys.time()
+```
+
+Without caching, we spent `r round(as.numeric(end_time - start_time), 2)` seconds.
+
+## With caching
+```{r include=FALSE}
+start_time2 <- Sys.time()
+```
+
+```{r caching, cache=TRUE}
+dat2 = matrix(runif(100000), ncol=5)
+dat2[, 3] = -.2 * dat2[, 1] + .8 * dat[, 2] # to make the plot less boring
+```
+
+```{r, cache=TRUE, dependson='caching'}
+pairs(dat2)
+```
+
+```{r include=FALSE}
+end_time2 <- Sys.time()
+```
+
+With caching, we spent `r round(as.numeric(end_time2 - start_time2), 2)` seconds (*on subsequent knit without making changes to the depended chunk(s)*).
